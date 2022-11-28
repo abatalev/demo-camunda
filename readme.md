@@ -6,6 +6,10 @@
 ./mk.sh
 ```
 
+## Jaeger
+
+![](jaeger.png)
+
 ## Endpoints 
 
 - Prometheus - http://localhost:9090/
