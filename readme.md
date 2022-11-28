@@ -21,3 +21,14 @@
 
 - https://reflectoring.io/spring-boot-tracing/
 - https://camunda.com/blog/2022/10/monitoring-camunda-platform-7-with-prometheus/
+
+- Тестирование -- https://habr.com/ru/company/simbirsoft/blog/657697/
+
+- https://blog.viadee.de/en/camunda-external-tasks-error-handling-and-retry-behavior
+- https://blog.viadee.de/en/camunda-external-task-worker
+
+- https://docs.camunda.io/docs/components/best-practices/development/invoking-services-from-the-process-c7/
+- https://github.com/camunda-consulting/camunda-7-code-examples/tree/master/snippets
+
+- https://camunda.com/blog/2022/02/moving-from-embedded-to-remote-workflow-engines/
+- https://github.com/camunda/camunda-bpm-examples/tree/master/spring-boot-starter/external-task-client/request-interceptor-spring-boot
