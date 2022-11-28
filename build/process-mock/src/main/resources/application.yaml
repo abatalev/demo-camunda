@@ -1,0 +1,49 @@
+# general
+spring:
+  main:
+    banner-mode: off
+  application:
+    name: process-mock
+
+# tracing
+opentracing:
+  jaeger:
+    enabled: true
+    log-spans: true
+    udp-sender:
+      host: jaeger
+      port: 6831
+  # tracing jms
+  spring:
+    cloud:
+      jms:
+        enabled: false
+  # tracing jdbc
+      jdbc:
+        withActiveSpanOnly: false
+        enabled: true
+# health
+management:
+  endpoint:
+    health:
+      status:
+        order: fatal,down,out-of-service,unknown,up
+        http-mapping:
+          down: 503
+          fatal: 503
+          out-of-service: 503
+      show-details: always
+
+      # health probes
+      probes.enabled: true
+
+  # metrics
+  endpoints.web.exposure.include: prometheus,health,info,metrics
+  metrics:
+    export.prometheus.enabled: true
+    enable:
+      jvm: true
+      all: true
+    distribution:
+      percentiles-histogram.http.server.requests: true
+      sla.http.server.requests: 1ms,5ms

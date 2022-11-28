@@ -1,0 +1,45 @@
+# general
+spring:
+  main:
+    banner-mode: off
+  application:
+    name: process
+
+camunda.bpm:
+  admin-user:
+    id: admin
+    password: adminadmin
+  metrics:
+    enabled: true
+    db-reporter-activate: false
+
+# tracing
+opentracing:
+  jaeger:
+    enabled: false
+
+# health
+management:
+  endpoint:
+    health:
+      status:
+        order: fatal,down,out-of-service,unknown,up
+        http-mapping:
+          down: 503
+          fatal: 503
+          out-of-service: 503
+      show-details: always
+
+      # health probes
+      probes.enabled: true
+
+  # metrics
+  endpoints.web.exposure.include: prometheus,health,info,metrics
+  metrics:
+    export.prometheus.enabled: true
+    enable:
+      jvm: true
+      all: true
+    distribution:
+      percentiles-histogram.http.server.requests: true
+      sla.http.server.requests: 1ms,5ms

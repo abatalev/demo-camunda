@@ -1,0 +1,64 @@
+version: "3.1"
+
+services: 
+  static:
+    image: nginx
+    ports:
+    - 8089:80
+    volumes:
+    - ./config/:/usr/share/nginx/html/
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.27.0  
+    ports:
+      - 16686:16686 
+
+  db:
+    image: postgres:13.4-alpine3.14
+    environment:
+      POSTGRES_PASSWORD: example
+
+#  initdb:
+#    image: abatalev/initdb:2021-10-28
+#    depends_on:
+#      - db
+  
+  process:
+    image: abatalev/process:2021-10-28
+    ports:
+    - 8081:8080
+    depends_on: 
+    - db
+    - jaeger
+
+  process-mock:
+    image: abatalev/process-mock:2021-10-28
+    ports:
+    - 8082:8080
+    depends_on: 
+    - process
+    - jaeger
+
+  prometheus:
+    image: prom/prometheus
+    command: --config.file=/etc/prometheus/prometheus.yml --log.level=debug
+    ports:
+    - 9090:9090
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+    links:
+      - process
+      - process-mock
+
+#  grafana:
+#    image: grafana/grafana:8.2.1
+#    ports:
+#      - 3000:3000
+#    environment:
+#      - GF_SECURITY_ADMIN_USER=admin
+#      - GF_SECURITY_ADMIN_PASSWORD=admin
+#    depends_on:
+#      - prometheus
+#  #   build: './config/grafana'
+#  #   volumes:
+#  #     - ./config/grafana:/var/lib/grafana
