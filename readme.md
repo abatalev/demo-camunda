@@ -6,6 +6,10 @@
 ./mk.sh
 ```
 
+## Process
+
+![](process.png)
+
 ## Jaeger
 
 ![](jaeger.png)
@@ -15,7 +19,7 @@
 - Prometheus - http://localhost:9090/
 - Jaeger - http://localhost:16686/
 - process-mock -  http://localhost:8082/
-- process - http://localhost:8081/
+- process - http://localhost:8081/engine-rest/process-definition/
 
 ## See also
 
@@ -32,3 +36,5 @@
 
 - https://camunda.com/blog/2022/02/moving-from-embedded-to-remote-workflow-engines/
 - https://github.com/camunda/camunda-bpm-examples/tree/master/spring-boot-starter/external-task-client/request-interceptor-spring-boot
+
+- https://github.com/camunda/camunda-bpm-examples/blob/master/spring-boot-starter/external-task-client/order-handling-spring-boot/src/main/java/org/camunda/bpm/spring/boot/example/Subscriptions.java
