@@ -27,7 +27,7 @@ public class ScheduleService {
         this.restTemplate = restTemplate;
     }
 
-    @Scheduled(fixedDelayString = "100000")
+    @Scheduled(fixedDelayString = "1000")
     @Timed
     public void run() {
         Tracer tracer = GlobalTracer.get();
@@ -36,7 +36,7 @@ public class ScheduleService {
             try (Scope ignored = tracer.activateSpan(span)) {
 
                 String answer = restTemplate.getForObject("http://process:8080/engine-rest/process-definition/", String.class);
-                log.info(answer);
+                log.info("Answer: " + answer);
                 String object = restTemplate.postForObject("http://process:8080/engine-rest/process-definition/key/process1-process/start",
                         new HashMap(), String.class);
                 log.info(object);
