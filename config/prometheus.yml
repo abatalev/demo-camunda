@@ -19,6 +19,6 @@ scrape_configs:
     scrape_interval: 5s
     metrics_path: '/actuator/prometheus'
     static_configs:
-      - targets: ['process:8080','process-mock:8080']
+      - targets: ['task1:8080','process:8080','process-mock:8080']
         labels:
           group: 'production'

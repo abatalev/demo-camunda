@@ -31,8 +31,19 @@ services:
     - db
     - jaeger
 
+  task1:
+    image: abatalev/task1:2021-10-28
+    scale: 2
+#    ports:
+#    - 8083:8080
+    depends_on: 
+    - db
+    - jaeger
+    - process
+
   process-mock:
     image: abatalev/process-mock:2021-10-28
+    scale: 1
     ports:
     - 8082:8080
     depends_on: 

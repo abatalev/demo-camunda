@@ -1,0 +1,10 @@
+FROM maven:3.8.6 as build
+COPY task1/pom.xml /work/pom.xml
+RUN cd /work; mvn -B dependency:go-offline 
+COPY task1/src/ /work/src/
+RUN cd /work; mvn -Dmaven.test.skip=true clean install 
+FROM ghcr.io/abatalev/liberica:11-jre-alpine3.9-ttf
+COPY app.sh /opt/app/app.sh
+RUN chmod +x /opt/app/app.sh
+COPY --from=build work/target/app.jar opt/app/app.jar
+ENTRYPOINT [ "/opt/app/app.sh" ]

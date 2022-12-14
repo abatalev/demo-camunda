@@ -3,7 +3,7 @@ USE_CACHE=0
 
 PRJ_IMAGEGROUP="abatalev"
 PRJ_IMAGEVERSION="2021-10-28"
-PRJ_MODULES="process process-mock"
+PRJ_MODULES="process process-mock task1"
 CDIR=$(pwd)
 
 function image_exist() {
@@ -80,7 +80,7 @@ function build_all() {
 
     cd "${CDIR}"
     echo "### launch docker-compose"
-    docker-compose up --remove-orphans # --scale actions=2
+    docker-compose up --remove-orphans --scale process-mock=1
 }
 
 build_all "${PRJ_MODULES}"
