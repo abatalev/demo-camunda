@@ -6,6 +6,10 @@ spring:
     name: process
 
 camunda.bpm:
+  generic-properties:
+    properties:
+      historyTimeToLive: P1D
+#      enforceHistoryTimeToLive: false
   admin-user:
     id: admin
     password: adminadmin
@@ -13,10 +17,23 @@ camunda.bpm:
     enabled: true
     db-reporter-activate: false
 
-# tracing
-opentracing:
-  jaeger:
+otel:
+  logs:
+    exporter: otlp
+  traces:
     enabled: false
+    exporter: otlp
+  exporter:
+    otlp:
+      endpoint: http://collector:4318
+
+  propagators:
+    - tracecontext
+  resource:
+    attributes:
+      service:
+        name: process
+        namespace: x2
 
 # health
 management:
