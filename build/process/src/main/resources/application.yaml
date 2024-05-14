@@ -6,6 +6,10 @@ spring:
     name: process
 
 camunda.bpm:
+  generic-properties:
+    properties:
+      historyTimeToLive: P1D
+#      enforceHistoryTimeToLive: false
   admin-user:
     id: admin
     password: adminadmin
