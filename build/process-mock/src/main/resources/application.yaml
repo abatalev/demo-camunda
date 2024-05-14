@@ -5,23 +5,6 @@ spring:
   application:
     name: process-mock
 
-# tracing
-opentracing:
-  jaeger:
-    enabled: true
-    log-spans: true
-    udp-sender:
-      host: jaeger
-      port: 6831
-  # tracing jms
-  spring:
-    cloud:
-      jms:
-        enabled: false
-  # tracing jdbc
-      jdbc:
-        withActiveSpanOnly: false
-        enabled: true
 # health
 management:
   endpoint:
