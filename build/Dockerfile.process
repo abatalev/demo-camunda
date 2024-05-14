@@ -4,7 +4,7 @@ COPY process/pom.xml /work/pom.xml
 RUN mvn -B dependency:go-offline 
 COPY process/src/ /work/src/
 RUN mvn -Dmaven.test.skip=true clean install 
-FROM ghcr.io/abatalev/liberica:11-jre-alpine3.9-ttf
+FROM ghcr.io/abatalev/liberica:17-jre-alpine3.16-ttf
 COPY app.sh /opt/app/app.sh
 RUN chmod +x /opt/app/app.sh
 COPY --from=build work/target/app.jar /opt/app/app.jar
