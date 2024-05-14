@@ -4,6 +4,23 @@ spring:
     banner-mode: off
   application:
     name: process-mock
+    
+otel:
+  logs:
+    exporter: otlp
+  traces:
+    exporter: otlp
+  exporter:
+    otlp:
+      endpoint: http://collector:4318
+
+  propagators:
+    - tracecontext
+  resource:
+    attributes:
+      service:
+        name: process-mock
+        namespace: x2
 
 # health
 management:

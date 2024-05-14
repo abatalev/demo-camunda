@@ -1,5 +1,8 @@
 package com.batal.demo.camunda;
 
+
+import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.instrumentation.spring.web.v3_1.SpringWebTelemetry;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -16,7 +19,10 @@ public class Application {
     }
 
     @Bean
-    public RestTemplate restTemplate(RestTemplateBuilder builder) {
-        return builder.build();
+    public RestTemplate restTemplate(OpenTelemetry openTelemetry) {
+        RestTemplate restTemplate = new RestTemplate();
+        SpringWebTelemetry telemetry = SpringWebTelemetry.create(openTelemetry);
+        restTemplate.getInterceptors().add(telemetry.newInterceptor());
+        return restTemplate;
     }
 }

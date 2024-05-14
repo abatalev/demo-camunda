@@ -1,7 +1,7 @@
 package com.batal.demo.camunda;
 
 import io.micrometer.core.annotation.Timed;
-import io.opentelemetry.api.GlobalOpenTelemetry;
+import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Scope;
@@ -27,16 +27,18 @@ public class ScheduleService {
     private static final Logger log = LoggerFactory.getLogger(ScheduleService.class);
 
     private final RestTemplate restTemplate;
+    private final OpenTelemetry openTelemetry;
 
     @Autowired
-    public ScheduleService(RestTemplate restTemplate) {
+    public ScheduleService(RestTemplate restTemplate, OpenTelemetry openTelemetry) {
         this.restTemplate = restTemplate;
+        this.openTelemetry = openTelemetry;
     }
 
     @Scheduled(fixedDelayString = "1000")
     @Timed
     public void run() {
-        Tracer tracer = GlobalOpenTelemetry.getTracer(ScheduleService.class.getName(), "1");
+        Tracer tracer = openTelemetry.getTracer(ScheduleService.class.getName(), "1");
         Span span = tracer.spanBuilder("run").startSpan();
         try {
             try (Scope ignored = span.makeCurrent()) {
