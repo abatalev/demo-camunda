@@ -13,21 +13,22 @@ camunda.bpm:
     enabled: true
     db-reporter-activate: false
 
-# tracing
-opentracing:
-  jaeger:
-    log-spans: false
-    udp-sender:
-      host: jaeger
-  # tracing jms
-  spring:
-    cloud:
-      jms:
-        enabled: false
-      # tracing jdbc
-      jdbc:
-        withActiveSpanOnly: false
-        enabled: true
+otel:
+  logs:
+    exporter: otlp
+  traces:
+    exporter: otlp
+  exporter:
+    otlp:
+      endpoint: http://collector:4318
+
+  propagators:
+    - tracecontext
+  resource:
+    attributes:
+      service:
+        name: process
+        namespace: x2
 
 # health
 management:

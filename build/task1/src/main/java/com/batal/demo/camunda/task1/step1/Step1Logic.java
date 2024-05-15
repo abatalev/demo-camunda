@@ -1,6 +1,7 @@
 package com.batal.demo.camunda.task1.step1;
 
-import io.opentracing.Span;
+import io.opentelemetry.api.trace.Span;
+
 import org.camunda.bpm.client.task.ExternalTask;
 import org.camunda.bpm.client.task.ExternalTaskService;
 import org.slf4j.Logger;
@@ -18,11 +19,11 @@ import static java.lang.Thread.sleep;
 @Component
 public class Step1Logic {
 
-    private static Logger log = LoggerFactory.getLogger(Step1Logic.class);
+    private final static Logger log = LoggerFactory.getLogger(Step1Logic.class);
 
     public void execute(ExternalTask task, ExternalTaskService service, Span span) {
         String taskId = task.getVariable("task_id");
-        span.setTag("task-id",taskId);
+        span.setAttribute("task-id",taskId);
         log.info("Begin  - id '{}' taskId '{}'", task.getId(), taskId);
         Map<String, Object> vars = new HashMap<>();
         long rnd = round(20 * random());
@@ -34,7 +35,7 @@ public class Step1Logic {
             throw new RuntimeException(e);
         }
         log.info("Finish - id '{}' taskId '{}' result '{}'", task.getId(), taskId, val);
-        span.setTag("logic-result", val);
+        span.setAttribute("logic-result", val);
         service.complete(task, vars);
     }
 }

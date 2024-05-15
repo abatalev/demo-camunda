@@ -1,9 +1,10 @@
 package com.batal.demo.camunda.task1.step1;
 
-import io.opentracing.Scope;
-import io.opentracing.Span;
-import io.opentracing.Tracer;
-import io.opentracing.util.GlobalTracer;
+import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.context.Scope;
+
 import org.camunda.bpm.client.spring.SpringTopicSubscription;
 import org.camunda.bpm.client.spring.annotation.ExternalTaskSubscription;
 import org.camunda.bpm.client.task.ExternalTask;
@@ -20,6 +21,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import static io.opentelemetry.api.trace.StatusCode.ERROR;
+
 @Component
 @Qualifier("step1")
 @ExternalTaskSubscription(topicName = "step1")
@@ -32,9 +35,12 @@ public class Step1Handler implements ExternalTaskHandler {
     private SpringTopicSubscription subscription;
 
     private Step1Logic logic;
+    private final OpenTelemetry openTelemetry;
 
     @Autowired
-    public Step1Handler(@Lazy @Qualifier("Step1HandlerSubscription") SpringTopicSubscription subscription, Step1Logic logic) {
+    public Step1Handler(@Lazy @Qualifier("Step1HandlerSubscription") SpringTopicSubscription subscription, 
+                        Step1Logic logic, OpenTelemetry openTelemetry) {
+        this.openTelemetry = openTelemetry;
         this.subscription = subscription;
         this.logic = logic;
     }
@@ -50,22 +56,22 @@ public class Step1Handler implements ExternalTaskHandler {
     }
 
     private void runLogic(ExternalTask task, ExternalTaskService service) {
-        Tracer tracer = GlobalTracer.get();
-        Span span = tracer.buildSpan("step1").start();
+        Tracer tracer = openTelemetry.getTracer(BackStep1Handler.class.getName(), "1");
+        Span span = tracer.spanBuilder("step1").startSpan();
         try {
-            try (Scope ignored = tracer.activateSpan(span)) {
-                span.setTag("id", task.getId());
+            try (Scope ignored = span.makeCurrent()) {
+                span.setAttribute("id", task.getId());
 
                 logic.execute(task, service, span);
 
-                span.setTag("result", "ok");
+                span.setAttribute("result", "ok");
             } catch (RuntimeException e) {
                 log.error("error: " + e.getMessage());
-                span.setTag("error", "true");
-                span.setTag("result", "error," + e.getMessage());
+                span.setStatus(ERROR);
+                span.setAttribute("result", "error," + e.getMessage());
             }
         } finally {
-            span.finish();
+            span.end();
             if (((ThreadPoolExecutor) executor).getQueue().size() < 2) {
                 if (!subscription.isOpen()) {
                     log.info("Open");
