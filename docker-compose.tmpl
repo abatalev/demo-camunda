@@ -9,13 +9,17 @@ services:
     - ./config/:/usr/share/nginx/html/
 
   jaeger:
-    image: jaegertracing/all-in-one:1.57.0  
+    image: jaegertracing/all-in-one:1.57.0
     ports:
-      - 16686:16686
+      - "16686:16686"                    # Jaeger UI
+      - "4317"                           # OTLP gRPC default port
+      - "4318"                           # OTLP HTTP default port (protobuf)
       - "14250"
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
 
   collector:
-    image: otel/opentelemetry-collector-contrib:0.72.0
+    image: otel/opentelemetry-collector-contrib:0.100.0
     command: [ "--config=/etc/otel-collector-config.yml" ]
     volumes:
       - ./config/otel.yaml:/etc/otel-collector-config.yml

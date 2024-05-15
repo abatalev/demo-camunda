@@ -10,14 +10,19 @@ processors:
 exporters:
   logging:
     loglevel: info
-  jaeger:
-    endpoint: jaeger:14250
+  debug:
+    verbosity: detailed
+  otlp:
+    endpoint: "jaeger:4317"
     tls:
       insecure: true
 
 service:
+  telemetry:
+    logs:
+      level: debug
   pipelines:
     traces:
-      receivers:  [ otlp ]
-      processors: [ batch ]
-      exporters:  [ logging, jaeger ]
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [debug, otlp]
