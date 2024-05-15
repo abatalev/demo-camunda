@@ -18,7 +18,7 @@ function check_prj2hash() {
         return 
     fi
 
-    GOLANG=$(which go)
+    GOLANG=$(command -v go)
     if [ "x$GOLANG" == "x" ]; then
         return
     fi
