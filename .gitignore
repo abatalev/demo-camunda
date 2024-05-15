@@ -2,6 +2,7 @@
 docker-compose.yaml
 **/target/
 cache/
+tools/
 
 ### STS ###
 .apt_generated
