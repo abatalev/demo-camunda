@@ -2,21 +2,21 @@ version: "3.1"
 
 services: 
   static:
-    image: nginx
+    image: nginx:1.25.5-alpine-otel
     ports:
     - 8089:80
     volumes:
     - ./config/:/usr/share/nginx/html/
 
   jaeger:
-    image: jaegertracing/all-in-one:1.27.0  
+    image: jaegertracing/all-in-one:1.57.0  
     ports:
       - 16686:16686 
 
-  db:
-    image: postgres:13.4-alpine3.14
-    environment:
-      POSTGRES_PASSWORD: example
+# db:
+#   image: postgres:16.3-alpine3.19
+#   environment:
+#     POSTGRES_PASSWORD: example
 
 #  initdb:
 #    image: abatalev/initdb:2021-10-28
@@ -28,18 +28,15 @@ services:
     ports:
     - 8081:8080
     depends_on: 
-    - db
     - jaeger
 
   task1:
     image: abatalev/task1:2021-10-28
     scale: 2
 #    ports:
-#    - 8083:8080
+#   - 8083:8080
     depends_on: 
-    - db
     - jaeger
-    - process
 
   process-mock:
     image: abatalev/process-mock:2021-10-28
@@ -51,7 +48,7 @@ services:
     - jaeger
 
   prometheus:
-    image: prom/prometheus
+    image: prom/prometheus:v2.52.0
     command: --config.file=/etc/prometheus/prometheus.yml --log.level=debug
     ports:
     - 9090:9090
