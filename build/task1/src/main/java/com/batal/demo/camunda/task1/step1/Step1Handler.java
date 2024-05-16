@@ -47,17 +47,31 @@ public class Step1Handler implements ExternalTaskHandler {
 
     @Override
     public void execute(ExternalTask task, ExternalTaskService service) {
-        log.info("Submit - id '{}'", task.getId());
-        executor.submit(() -> runLogic(task, service));
-        if (((ThreadPoolExecutor) executor).getQueue().size() > 9) {
-            log.info("Close");
-            subscription.close();
+        Tracer tracer = openTelemetry.getTracer(Step1Handler.class.getName(), "1");
+        Span span = tracer.spanBuilder("step1-submit").startSpan();
+        try {
+            try (Scope ignored = span.makeCurrent()) {
+                span.setAttribute("id", task.getId());
+
+                log.info("Submit - id '{}'", task.getId());
+                executor.submit(() -> runLogic(task, service));
+                if (((ThreadPoolExecutor) executor).getQueue().size() > 9) {
+                    log.info("Close");
+                    subscription.close();
+                }
+            } catch (RuntimeException e) {
+                log.error("error: " + e.getMessage());
+                span.setStatus(ERROR);
+                span.setAttribute("result", "error," + e.getMessage());
+            }
+        } finally {
+            span.end();
         }
     }
 
     private void runLogic(ExternalTask task, ExternalTaskService service) {
         Tracer tracer = openTelemetry.getTracer(BackStep1Handler.class.getName(), "1");
-        Span span = tracer.spanBuilder("step1").startSpan();
+        Span span = tracer.spanBuilder("step1-logic").startSpan();
         try {
             try (Scope ignored = span.makeCurrent()) {
                 span.setAttribute("id", task.getId());
@@ -70,14 +84,14 @@ public class Step1Handler implements ExternalTaskHandler {
                 span.setStatus(ERROR);
                 span.setAttribute("result", "error," + e.getMessage());
             }
-        } finally {
-            span.end();
             if (((ThreadPoolExecutor) executor).getQueue().size() < 2) {
                 if (!subscription.isOpen()) {
                     log.info("Open");
                     subscription.open();
                 }
             }
+        } finally {
+            span.end();
         }
     }
 }
