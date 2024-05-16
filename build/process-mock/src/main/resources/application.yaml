@@ -4,8 +4,9 @@ spring:
     banner-mode: off
   application:
     name: process-mock
-    
+
 otel:
+  instrumentation.spring.autoconfigure.actuator.sampler.filter: true
   logs:
     exporter: otlp
   traces:
