@@ -14,6 +14,7 @@ camunda.bpm:
     db-reporter-activate: false
 
 otel:
+  instrumentation.jdbc-datasource.enabled: true
   logs:
     exporter: otlp
   traces:
