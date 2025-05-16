@@ -21,6 +21,13 @@
 - process-mock -  http://localhost:8082/
 - process - http://localhost:8081/engine-rest/process-definition/
 
+## To Do
+
+- use otel-collector (see https://github.com/abatalev/demo-service-flyway-pg/)
+- use loki (see https://github.com/abatalev/demo-service-flyway-pg/)
+- use tempo (see https://github.com/abatalev/demo-service-flyway-pg/)
+- use graphana (see https://github.com/abatalev/demo-service-flyway-pg/)
+
 ## See also
 
 - https://reflectoring.io/spring-boot-tracing/
