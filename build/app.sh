@@ -1,2 +1,2 @@
 #!/bin/sh
-java -jar /opt/app/app.jar
+java -jar /opt/app.jar
