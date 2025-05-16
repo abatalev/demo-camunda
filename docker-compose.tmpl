@@ -5,43 +5,17 @@ services:
     - 8089:80
     volumes:
     - ./config/:/usr/share/nginx/html/
+    networks:
+      - camunda-network
 
-  jaeger:
-    image: jaegertracing/all-in-one:1.57.0
-    ports:
-      - "16686:16686"                    # Jaeger UI
-      - "4317"                           # OTLP gRPC default port
-      - "4318"                           # OTLP HTTP default port (protobuf)
-      - "14250"
-    environment:
-      - COLLECTOR_OTLP_ENABLED=true
-
-  collector:
-    image: otel/opentelemetry-collector-contrib:0.100.0
-    command: [ "--config=/etc/otel-collector-config.yml" ]
-    volumes:
-      - ./config/otel.yaml:/etc/otel-collector-config.yml
-    ports:
-      - "4317:4317"
-    depends_on:
-      - jaeger    
-
-# db:
-#   image: postgres:16.3-alpine3.19
-#   environment:
-#     POSTGRES_PASSWORD: example
-
-#  initdb:
-#    image: abatalev/initdb:2021-10-28
-#    depends_on:
-#      - db
-  
   process:
     image: abatalev/process:2021-10-28
     ports:
     - 8081:8080
     depends_on: 
-    - collector
+    - otel
+    networks:
+      - camunda-network
 
   task1:
     image: abatalev/task1:2021-10-28
@@ -49,8 +23,10 @@ services:
 #    ports:
 #   - 8083:8080
     depends_on: 
-    - collector
+    - otel
     - process
+    networks:
+      - camunda-network
 
   process-mock:
     image: abatalev/process-mock:2021-10-28
@@ -59,29 +35,103 @@ services:
     - 8082:8080
     depends_on: 
     - process
-    - collector
+    - otel
+    networks:
+      - camunda-network
+
+ # observability
+  otel:
+    image: otel/opentelemetry-collector-contrib:0.126.0
+    command: [--config=/etc/otel-config.yml]
+    volumes:
+      - ./config/otel-config.yml:/etc/otel-config.yml:ro
+    ports:
+      - "55679:55679"
+    depends_on:
+      - loki
+      - tempo
+    networks:
+      - camunda-network
 
   prometheus:
-    image: prom/prometheus:v2.52.0
+    image: prom/prometheus:v3.2.1
     command: --config.file=/etc/prometheus/prometheus.yml --log.level=debug
     ports:
-    - 9090:9090
+      - 9090:9090
     volumes:
-      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     links:
-      - process
-      - process-mock
-      - task1
+      - otel
+    networks:
+      - camunda-network
 
-#  grafana:
-#    image: grafana/grafana:8.2.1
-#    ports:
-#      - 3000:3000
-#    environment:
-#      - GF_SECURITY_ADMIN_USER=admin
-#      - GF_SECURITY_ADMIN_PASSWORD=admin
-#    depends_on:
-#      - prometheus
-#  #   build: './config/grafana'
-#  #   volumes:
-#  #     - ./config/grafana:/var/lib/grafana
+  loki:
+    image: grafana/loki:3.2.0
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./config/loki.yaml:/etc/loki/local-config.yaml
+    ports:
+      - "3100"
+    networks:
+      - camunda-network
+
+  tempo:
+    image: grafana/tempo:2.7.2
+    command: [ "-config.file=/etc/tempo.yaml" ]
+    volumes:
+      - ./config/tempo.yaml:/etc/tempo.yaml
+    ports:
+      - "3200:3200"
+    #   - "4317"  # otlp grpc
+    #   - "4318"      
+    networks:
+      - camunda-network
+
+  # grafana:
+  #   environment:
+  #     - GF_AUTH_ANONYMOUS_ENABLED=true
+  #     - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+  #   image: grafana/grafana:11.6.0
+  #   volumes:
+  #     - ./config/grafana.yml:/etc/grafana/provisioning/datasources/default.yml
+  #   ports:
+  #     - "3001:3000"
+  #   depends_on:  
+  #     - prometheus
+  #     - tempo
+  #     - loki
+  #   networks:
+  #     - camunda-network
+
+  # pgadmin:
+  #   container_name: pgadmin_container
+  #   image: dpage/pgadmin4:7
+  #   depends_on:
+  #     - db
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: pgadmin@example.com
+  #     PGADMIN_DEFAULT_PASSWORD: admin
+  #     PGADMIN_CONFIG_SERVER_MODE: 'False'
+  #     MASTER_PASSWORD_REQUIRED: False
+  #   ports:
+  #     - 8050:80  
+  #   networks:
+  #     - camunda-network
+
+  # alloy:
+  #   image: grafana/alloy:v1.7.5
+  #   ports:
+  #     - 12345:12345
+  #   volumes:
+  #     - ./config/config.alloy:/etc/alloy/config.alloy:ro
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #   command: run --server.http.listen-addr=0.0.0.0:12345 --storage.path=/var/lib/alloy/data /etc/alloy/config.alloy
+  #   depends_on:
+  #     - loki  
+  #     - prometheus
+  #   networks:
+  #     - camunda-network
+
+networks:
+  camunda-network:
+    driver: bridge     

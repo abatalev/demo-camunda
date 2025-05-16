@@ -10,24 +10,25 @@ rule_files:
   - 'prometheus.rules.yml'
 
 scrape_configs:
+  - job_name: "otel"
+    scrape_interval: 10s
+    static_configs:
+      - targets: ["otel:8889"]
+      # - targets: ["otel:8888"]
+
   - job_name: 'prometheus'
     scrape_interval: 5s
     static_configs:
       - targets: ['localhost:9090']
 
-  - job_name: 'node'
-    scrape_interval: 5s
-    metrics_path: '/actuator/prometheus'
-    static_configs:
-      - targets: ['process:8080','process-mock:8080']
-        labels:
-          group: 'production'
+  # - job_name: 'tempo'
+  #   static_configs:
+  #     - targets: [ 'tempo:3200' ]
 
-  - job_name: 'task1'
-    scrape_interval: 5s
-    metrics_path: '/actuator/prometheus'
-    dns_sd_configs:
-      - names: [ 'task1' ]
-        type: A
-        port: 8080
-
+  # - job_name: 'service'
+  #   scrape_interval: 5s
+  #   metrics_path: '/actuator/prometheus'
+  #   static_configs:
+  #     - targets: ['dbservice:8080']
+  #       labels:
+  #         group: 'service'
