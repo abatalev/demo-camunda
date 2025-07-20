@@ -1,9 +1,10 @@
 # Demo Embedded Camunda
 
-## Build 
+## Build and launch
 
 ```sh
-./mk.sh
+./mk.sh 
+xdg-open http://localhost:8089/
 ```
 
 ## Process
@@ -14,19 +15,10 @@
 
 ![](jaeger.png)
 
-## Endpoints 
-
-- Prometheus - http://localhost:9090/
-- Jaeger - http://localhost:16686/
-- process-mock -  http://localhost:8082/
-- process - http://localhost:8081/engine-rest/process-definition/
-
 ## To Do
 
-- use otel-collector (see https://github.com/abatalev/demo-service-flyway-pg/)
-- use loki (see https://github.com/abatalev/demo-service-flyway-pg/)
-- use tempo (see https://github.com/abatalev/demo-service-flyway-pg/)
-- use graphana (see https://github.com/abatalev/demo-service-flyway-pg/)
+- [ ] add new screenshots
+- [ ] add builddocs
 
 ## See also
 

@@ -10,6 +10,9 @@ services:
 
   process:
     image: abatalev/process:2021-10-28
+    environment:
+      OTLP_HOST: otel 
+      OTLP_DISABLED: false
     ports:
     - 8081:8080
     depends_on: 
@@ -19,17 +22,23 @@ services:
 
   task1:
     image: abatalev/task1:2021-10-28
-    scale: 2
-#    ports:
-#   - 8083:8080
+    environment:
+      OTLP_HOST: otel 
+      OTLP_DISABLED: false
+    scale: 1
+    ports:
+      - 8083:8080
     depends_on: 
-    - otel
-    - process
+      - otel
+      - process
     networks:
       - camunda-network
 
   process-mock:
     image: abatalev/process-mock:2021-10-28
+    environment:
+      OTLP_HOST: otel 
+      OTLP_DISABLED: false
     scale: 1
     ports:
     - 8082:8080
@@ -87,21 +96,21 @@ services:
     networks:
       - camunda-network
 
-  # grafana:
-  #   environment:
-  #     - GF_AUTH_ANONYMOUS_ENABLED=true
-  #     - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
-  #   image: grafana/grafana:11.6.0
-  #   volumes:
-  #     - ./config/grafana.yml:/etc/grafana/provisioning/datasources/default.yml
-  #   ports:
-  #     - "3001:3000"
-  #   depends_on:  
-  #     - prometheus
-  #     - tempo
-  #     - loki
-  #   networks:
-  #     - camunda-network
+  grafana:
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+    image: grafana/grafana:11.6.0
+    volumes:
+      - ./config/grafana.yml:/etc/grafana/provisioning/datasources/default.yml
+    ports:
+      - "3001:3000"
+    depends_on:  
+      - prometheus
+      - tempo
+      - loki
+    networks:
+      - camunda-network
 
   # pgadmin:
   #   container_name: pgadmin_container

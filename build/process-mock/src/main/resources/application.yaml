@@ -4,47 +4,50 @@ spring:
     banner-mode: off
   application:
     name: process-mock
-
+    
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,prometheus"
+    health:
+      show-details: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+  otlp:
+    tracing:
+      endpoint: "http://${OTLP_HOST}:4318/v1/traces"
+      timeout: 10s
+    metrics:
+      export:
+        url: "http://${OTLP_HOST}:4318/v1/metrics"
+        step: 5s
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1
+  opentelemetry:
+    resource-attributes:
+      service-name: "${spring.application.name}"
 otel:
-  instrumentation.spring.autoconfigure.actuator.sampler.filter: true
-  logs:
-    exporter: otlp
-  traces:
-    exporter: otlp
+  sdk.disabled: "${OTLP_DISABLED}"
+  traces.exporter: otlp
+  logs.exporter: otlp
+  metrics.exporter: otlp
+  metric.export.interval: 5000
+  instrumentation:
+    micrometer.enabled: true
+    jdbc.enabled: true
+    logback-mdc.enabled: true
   exporter:
     otlp:
-      endpoint: http://otel:4318
-
+      endpoint: "http://${OTLP_HOST}:4318"
   propagators:
-    - tracecontext
+  - tracecontext
   resource:
     attributes:
       service:
-        name: process-mock
-        namespace: x2
-
-# health
-management:
-  endpoint:
-    health:
-      status:
-        order: fatal,down,out-of-service,unknown,up
-        http-mapping:
-          down: 503
-          fatal: 503
-          out-of-service: 503
-      show-details: always
-
-      # health probes
-      probes.enabled: true
-
-  # metrics
-  endpoints.web.exposure.include: prometheus,health,info,metrics
-  metrics:
-    export.prometheus.enabled: true
-    enable:
-      jvm: true
-      all: true
-    distribution:
-      percentiles-histogram.http.server.requests: true
-      sla.http.server.requests: 1ms,5ms
+        name: "${spring.application.name}"
+        namespace: x4
