@@ -1,5 +1,11 @@
 # Demo Embedded Camunda
 
+## Freezing
+
+This project freezing after news about Camunda 7 End of Life. 
+
+> The EoL date for Camunda 7 Community Edition has not changed. Please note that the final feature release for Camunda 7 (7.24) is still scheduled for October 14, 2025, and the repository will be archived shortly after. After this date, no further releases, including security patches, will be made for Camunda 7 Community Edition.
+
 ## Build and launch
 
 ```sh
